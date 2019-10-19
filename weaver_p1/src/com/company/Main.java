@@ -6,30 +6,26 @@ import java.util.Scanner;
 public class Main {
     private static Scanner scnr = new Scanner(System.in);
     private static SecureRandom ran = new SecureRandom();
-    private static double num1, num2;
+    private static double num1 = 0, num2 = 0;
     private static double answer, userAnswer;
     private static int difficultyLevel, problemType, numCorrect = 0;
-    private static boolean isFive = false;
+    private static boolean newSession = true, isFive = false;
 
     public static void main(String[] args) {
 
-        while (true) {
-            getProblemType();
+        while (newSession) {
             getDifficulty();
+            getProblemType();
             for (int i = 0; i < 10; i++) {
                 generateNewNumbers();
+
                 askQuestion();
                 getUserAnswer();
 
-                if (Math.abs(userAnswer - answer) < 0.0001) {
-                    printCorrectResponse();
-                    numCorrect++;
-                }
-                else
-                    printIncorrectResponse();
-
+                compareAnswers();
             }
             printSessionResults();
+            setSession();
         }
     }
 
@@ -55,15 +51,20 @@ public class Main {
                 System.out.println("What is " + (int)num1 + " divided by " + (int)num2 + "?");
                 answer = num1 / num2;
                 break;
-
         }
         if(isFive)
             problemType = 5;
     }
 
     private static void generateNewNumbers(){
-        num1 = ran.nextInt((int)Math.pow(10, difficultyLevel));
-        num2 = ran.nextInt((int)Math.pow(10, difficultyLevel));
+        num1 = 0;
+        num2 = 0;
+        while (num1 == 0){
+            num1 = ran.nextInt((int)Math.pow(10, difficultyLevel));
+        }
+        while (num2 == 0){
+            num2 = ran.nextInt((int)Math.pow(10, difficultyLevel));
+        }
     }
 
     private static void getUserAnswer(){
@@ -108,20 +109,24 @@ public class Main {
     }
 
     private static void printSessionResults(){
-        double percentCorrect = numCorrect/(.1);
-        if (percentCorrect < .75){
+        if (numCorrect < 8){
             System.out.println("Please ask your teacher for extra help.");
         } else
             System.out.println("Congratulations, you are ready to go to the next level!");
         numCorrect = 0;
+    }
 
-        System.out.println("New session starting.");
-        System.out.println();
+    private static void compareAnswers() {
+        if (Math.abs(userAnswer - answer) < 0.0001) {
+            printCorrectResponse();
+            numCorrect++;
+        }
+        else
+            printIncorrectResponse();
     }
 
     private static void getDifficulty(){
         System.out.println("Choose a difficulty level from 1 to 4.");
-
         difficultyLevel = scnr.nextInt();
     }
 
@@ -132,9 +137,14 @@ public class Main {
         System.out.println("3 - Subtraction");
         System.out.println("4 - Division");
         System.out.println("5 - All of the above");
-
         problemType = scnr.nextInt();
     }
 
+    private static void setSession() {
+        System.out.println("Would you like to begin a new session? (y/n)");
+        if (scnr.next().equalsIgnoreCase("n")) {
+            newSession = false;
+        }
+    }
 }
 
